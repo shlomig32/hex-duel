@@ -1,16 +1,7 @@
 import { el } from '../lib/dom.js';
 import { showToast } from '../lib/toast.js';
 import { GameScreen } from './game.js';
-
-const GAME_INFO = {
-  hex: { emoji: '\u2B21', name: '\u05D4\u05E7\u05E1 \u05D3\u05D5\u05D0\u05DC' },
-  connect4: { emoji: '\uD83D\uDD34', name: '\u05D0\u05E8\u05D1\u05E2 \u05D1\u05E9\u05D5\u05E8\u05D4' },
-  pong: { emoji: '\uD83C\uDFD3', name: '\u05E4\u05D5\u05E0\u05D2' },
-  reaction: { emoji: '\u26A1', name: '\u05EA\u05D2\u05D5\u05D1\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4' },
-  bomb: { emoji: '\uD83D\uDCA3', name: '\u05E4\u05E6\u05E6\u05D4 \u05D7\u05DE\u05D4' },
-  tapsprint: { emoji: '\uD83D\uDC46', name: '\u05E7\u05DC\u05D9\u05E7 \u05DE\u05D8\u05D5\u05E8\u05E3' },
-  scream: { emoji: '\uD83D\uDDE3\uFE0F', name: '\u05E7\u05E8\u05D1 \u05E6\u05E2\u05E7\u05D5\u05EA' },
-};
+import { GAME_REGISTRY } from '../lib/game-registry.js';
 
 export class WaitingScreen {
   constructor(manager, props) {
@@ -23,13 +14,13 @@ export class WaitingScreen {
   }
 
   render() {
-    const info = GAME_INFO[this.props.gameType] || { emoji: '\uD83C\uDFAE', name: 'Game' };
+    const game = GAME_REGISTRY[this.props.gameType];
+    const info = game || { emoji: '\uD83C\uDFAE', name: 'Game' };
     const isJoiner = this.props.joined;
 
     const children = [];
 
     if (isJoiner && this.props.bet) {
-      // Joiner sees the invitation with bet
       const creatorName = this.props.creatorName || '\u05D4\u05D9\u05E8\u05D9\u05D1';
       children.push(
         el('div', { className: 'invite-card' }, [
@@ -44,14 +35,12 @@ export class WaitingScreen {
         el('p', { className: 'waiting-text' }, ['...\u05DE\u05EA\u05D7\u05D9\u05DC']),
       );
     } else if (isJoiner) {
-      // Joiner without bet
       children.push(
         el('div', { style: { fontSize: '4rem' } }, [info.emoji]),
         el('h2', {}, [info.name]),
         el('p', { className: 'waiting-text' }, ['...\u05DE\u05EA\u05D7\u05D9\u05DC']),
       );
     } else {
-      // Creator -- show code to share
       const codeEl = el('div', { className: 'code-display' }, [this.props.code]);
 
       const copyBtn = el('button', {
@@ -75,7 +64,7 @@ export class WaitingScreen {
         children.push(el('div', { className: 'bet-badge' }, [`\uD83C\uDFB2 ${this.props.bet}`]));
       }
 
-      // WhatsApp share button
+      // WhatsApp share
       const shareUrl = `${location.origin}${location.pathname}?code=${this.props.code}`;
       let waMsg = `\uD83C\uDFAE \u05D1\u05D5\u05D0 \u05E0\u05E9\u05D7\u05E7 ${info.name}!\n`;
       if (this.props.bet) {
@@ -102,7 +91,7 @@ export class WaitingScreen {
 
     this.el = div;
 
-    // Listen for countdown (game about to start)
+    // Listen for countdown
     this._unsubs.push(this.manager.ws.on('countdown', (msg) => {
       if (this.destroyed || this._gameStarted) return;
       this._gameStarted = true;

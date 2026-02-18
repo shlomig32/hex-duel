@@ -2,6 +2,7 @@ import { el } from '../lib/dom.js';
 import { showToast } from '../lib/toast.js';
 import { promptModal } from '../lib/modal.js';
 import { WaitingScreen } from './waiting.js';
+import { showHowToPlay, hasSeenInstructions, markInstructionsSeen } from './how-to-play.js';
 
 export class GameSetupScreen {
   constructor(manager, props) {
@@ -25,7 +26,17 @@ export class GameSetupScreen {
       el('div', { className: 'setup-emoji' }, [game.emoji]),
       el('div', { className: 'setup-name' }, [game.name]),
       el('div', { className: 'setup-tagline' }, [game.tagline]),
+      el('div', { className: 'setup-meta' }, [
+        el('span', { className: 'setup-difficulty' }, ['\u2B50'.repeat(game.difficulty || 1)]),
+        el('span', { className: 'setup-duration' }, [`\u23F1 ${game.duration || ''}`]),
+      ]),
     ]);
+
+    // -- How to play button --
+    const htpBtn = el('button', {
+      className: 'btn btn--ghost btn--small',
+      onClick: () => showHowToPlay(game.id),
+    }, ['\u2753 \u05D0\u05D9\u05DA \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD?']);
 
     // -- Bet toggle --
     const betInput = el('input', {
@@ -56,12 +67,20 @@ export class GameSetupScreen {
     const div = el('div', { className: 'setup-screen' }, [
       backBtn,
       gameInfo,
+      htpBtn,
       betToggle,
       betContent,
       createBtn,
     ]);
 
     this.el = div;
+
+    // Auto-show instructions first time
+    if (!hasSeenInstructions(game.id)) {
+      markInstructionsSeen(game.id);
+      setTimeout(() => showHowToPlay(game.id), 300);
+    }
+
     return div;
   }
 

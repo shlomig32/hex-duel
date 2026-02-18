@@ -1,21 +1,9 @@
 import { el } from '../lib/dom.js';
 import { showToast } from '../lib/toast.js';
 import { promptModal } from '../lib/modal.js';
-
-const CATEGORIES = [
-  {
-    title: '1v1 \u05D3\u05D5\u05D0\u05DC\u05D9\u05DD',
-    games: [
-      { id: 'hex', emoji: '\u2B21', name: '\u05D4\u05E7\u05E1 \u05D3\u05D5\u05D0\u05DC', tagline: '\u05D7\u05D1\u05E8 \u05E6\u05D3\u05D3\u05D9\u05DD. \u05D7\u05E1\u05D5\u05DD \u05D9\u05E8\u05D9\u05D1.' },
-      { id: 'connect4', emoji: '\uD83D\uDD34', name: '\u05D0\u05E8\u05D1\u05E2 \u05D1\u05E9\u05D5\u05E8\u05D4', tagline: '\u05D4\u05E4\u05DC \u05D0\u05E1\u05D9\u05DE\u05D5\u05E0\u05D9\u05DD. \u05D7\u05D1\u05E8 \u05D0\u05E8\u05D1\u05E2.' },
-      { id: 'pong', emoji: '\uD83C\uDFD3', name: '\u05E4\u05D5\u05E0\u05D2', tagline: '\u05D4\u05D6\u05D6 \u05DE\u05D7\u05D1\u05D8. \u05D4\u05D1\u05E7\u05E2 \u05E9\u05E2\u05E8\u05D9\u05DD.' },
-      { id: 'reaction', emoji: '\u26A1', name: '\u05EA\u05D2\u05D5\u05D1\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4', tagline: '\u05D7\u05DB\u05D4 \u05DC\u05D0\u05D5\u05EA. \u05DC\u05D7\u05E5 \u05E8\u05D0\u05E9\u05D5\u05DF.' },
-      { id: 'bomb', emoji: '\uD83D\uDCA3', name: '\u05E4\u05E6\u05E6\u05D4 \u05D7\u05DE\u05D4', tagline: '\u05D4\u05E2\u05D1\u05E8 \u05D0\u05EA \u05D4\u05E4\u05E6\u05E6\u05D4. \u05D0\u05DC \u05EA\u05D9\u05EA\u05E4\u05E1.' },
-      { id: 'tapsprint', emoji: '\uD83D\uDC46', name: '\u05E7\u05DC\u05D9\u05E7 \u05DE\u05D8\u05D5\u05E8\u05E3', tagline: '\u05DC\u05D7\u05E5 \u05D4\u05DB\u05D9 \u05DE\u05D4\u05E8. 10 \u05E9\u05E0\u05D9\u05D5\u05EA.' },
-      { id: 'scream', emoji: '\uD83D\uDDE3\uFE0F', name: '\u05E7\u05E8\u05D1 \u05E6\u05E2\u05E7\u05D5\u05EA', tagline: '\u05E6\u05E2\u05E7 \u05D7\u05D6\u05E7 \u05DE\u05D4\u05D9\u05E8\u05D9\u05D1. \u05D3\u05D7\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D5.' },
-    ],
-  },
-];
+import { GAME_REGISTRY, CATEGORIES } from '../lib/game-registry.js';
+import { getAvatar, setAvatar, AVATARS } from '../lib/avatars.js';
+import { getStats } from '../lib/stats.js';
 
 export class HomeScreen {
   constructor(manager) {
@@ -25,8 +13,16 @@ export class HomeScreen {
 
   render() {
     const savedName = this.manager.getPlayerName() || '';
+    const avatar = getAvatar();
+    const stats = getStats();
 
     // -- Header --
+    const avatarEl = el('span', {
+      className: 'header-avatar',
+      onClick: () => this._pickAvatar(),
+    }, [avatar]);
+    this._avatarEl = avatarEl;
+
     const nameDisplay = el('span', {
       className: 'header-name',
       onClick: () => this._editName(),
@@ -34,10 +30,32 @@ export class HomeScreen {
     this._nameDisplay = nameDisplay;
 
     const header = el('div', { className: 'home-header' }, [
-      el('h1', {}, ['\uD83C\uDFAE Game Arena']),
+      el('h1', { className: 'home-logo' }, ['\uD83C\uDFAE Game Arena']),
       el('div', { className: 'header-user' }, [
+        avatarEl,
         nameDisplay,
         el('span', { className: 'header-edit-icon', onClick: () => this._editName() }, ['\u270F\uFE0F']),
+      ]),
+    ]);
+
+    // -- Stats bar --
+    const streakFire = stats.streak >= 3 ? ' \uD83D\uDD25' : '';
+    const statsBar = el('div', { className: 'stats-bar' }, [
+      el('div', { className: 'stat-item' }, [
+        el('span', { className: 'stat-value' }, [String(stats.played)]),
+        el('span', { className: 'stat-label' }, ['\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD']),
+      ]),
+      el('div', { className: 'stat-item' }, [
+        el('span', { className: 'stat-value' }, [String(stats.wins)]),
+        el('span', { className: 'stat-label' }, ['\u05E0\u05D9\u05E6\u05D7\u05D5\u05E0\u05D5\u05EA']),
+      ]),
+      el('div', { className: 'stat-item' }, [
+        el('span', { className: 'stat-value' }, [`${stats.streak}${streakFire}`]),
+        el('span', { className: 'stat-label' }, ['\u05E8\u05E6\u05E3']),
+      ]),
+      el('div', { className: 'stat-item' }, [
+        el('span', { className: 'stat-value' }, [String(stats.bestStreak)]),
+        el('span', { className: 'stat-label' }, ['\u05E9\u05D9\u05D0 \u05E8\u05E6\u05E3']),
       ]),
     ]);
 
@@ -63,18 +81,29 @@ export class HomeScreen {
 
     // -- Categories --
     const sections = CATEGORIES.map(cat => {
-      const gameCards = cat.games.map(game => {
+      const gameIds = cat.games;
+      const gameCards = gameIds.map((gameId, cardIdx) => {
+        const game = GAME_REGISTRY[gameId];
+        if (!game) return null;
+
         const card = el('div', {
           className: 'game-card',
           'data-game': game.id,
+          style: { animationDelay: `${cardIdx * 0.08}s` },
           onClick: () => this._openSetup(game),
         }, [
           el('div', { className: 'game-card__emoji' }, [game.emoji]),
-          el('div', { className: 'game-card__name' }, [game.name]),
-          el('div', { className: 'game-card__tagline' }, [game.tagline]),
+          el('div', { className: 'game-card__info' }, [
+            el('div', { className: 'game-card__name' }, [game.name]),
+            el('div', { className: 'game-card__tagline' }, [game.tagline]),
+          ]),
+          el('div', { className: 'game-card__meta' }, [
+            el('span', { className: 'game-card__difficulty' }, ['\u2B50'.repeat(game.difficulty)]),
+            el('span', { className: 'game-card__duration' }, [`\u23F1 ${game.duration}`]),
+          ]),
         ]);
         return card;
-      });
+      }).filter(Boolean);
 
       return el('div', { className: 'category-section' }, [
         el('div', { className: 'category-title' }, [cat.title]),
@@ -84,6 +113,7 @@ export class HomeScreen {
 
     const div = el('div', { className: 'home-screen' }, [
       header,
+      statsBar,
       joinBar,
       ...sections,
     ]);
@@ -102,9 +132,44 @@ export class HomeScreen {
     }
   }
 
+  _pickAvatar() {
+    // Create avatar picker overlay
+    const overlay = el('div', { className: 'avatar-overlay' });
+    const grid = el('div', { className: 'avatar-grid' });
+
+    for (const emoji of AVATARS) {
+      const btn = el('button', {
+        className: `avatar-btn${emoji === getAvatar() ? ' selected' : ''}`,
+        onClick: () => {
+          setAvatar(emoji);
+          this._avatarEl.textContent = emoji;
+          overlay.classList.add('htp-exit');
+          setTimeout(() => {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+          }, 200);
+        },
+      }, [emoji]);
+      grid.appendChild(btn);
+    }
+
+    overlay.appendChild(el('div', { className: 'avatar-card' }, [
+      el('div', { className: 'avatar-title' }, ['\u05D1\u05D7\u05E8 \u05D0\u05D5\u05D5\u05D0\u05D8\u05D0\u05E8']),
+      grid,
+    ]));
+
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add('htp-exit');
+        setTimeout(() => {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 200);
+      }
+    });
+  }
+
   _getName() {
-    const name = this.manager.getPlayerName() || '\u05E9\u05D7\u05E7\u05DF';
-    return name;
+    return this.manager.getPlayerName() || '\u05E9\u05D7\u05E7\u05DF';
   }
 
   async _openSetup(game) {

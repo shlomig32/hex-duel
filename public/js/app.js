@@ -6,6 +6,7 @@ import { showToast } from './lib/toast.js';
 import { promptModal } from './lib/modal.js';
 import { vibrate } from './lib/haptics.js';
 import { buttonClick } from './lib/sounds.js';
+import { loadSponsors } from './lib/sponsors.js';
 
 // -- WebSocket Manager --
 class WS {
@@ -133,6 +134,9 @@ class ScreenManager {
 // -- Init --
 const app = document.getElementById('app');
 const manager = new ScreenManager(app);
+
+// Load sponsors in background (non-blocking)
+loadSponsors();
 
 // Delegated button click haptic + sound
 app.addEventListener('click', (e) => {

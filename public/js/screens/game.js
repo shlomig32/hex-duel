@@ -3,16 +3,9 @@ import { showToast } from '../lib/toast.js';
 import { countdownBeep, gameStart } from '../lib/sounds.js';
 import { vibrate } from '../lib/haptics.js';
 import { ResultScreen } from './result.js';
-
-const GAME_COLORS = {
-  hex: { p1: '#EF4444', p2: '#3B82F6', p1bg: 'rgba(239,68,68,0.2)', p2bg: 'rgba(59,130,246,0.2)' },
-  connect4: { p1: '#FBBF24', p2: '#EF4444', p1bg: 'rgba(251,191,36,0.2)', p2bg: 'rgba(239,68,68,0.2)' },
-  pong: { p1: '#06B6D4', p2: '#8B5CF6', p1bg: 'rgba(6,182,212,0.2)', p2bg: 'rgba(139,92,246,0.2)' },
-  reaction: { p1: '#10B981', p2: '#F97316', p1bg: 'rgba(16,185,129,0.2)', p2bg: 'rgba(249,115,22,0.2)' },
-  bomb: { p1: '#F97316', p2: '#FBBF24', p1bg: 'rgba(249,115,22,0.2)', p2bg: 'rgba(251,191,36,0.2)' },
-  tapsprint: { p1: '#EC4899', p2: '#8B5CF6', p1bg: 'rgba(236,72,153,0.2)', p2bg: 'rgba(139,92,246,0.2)' },
-  scream: { p1: '#F59E0B', p2: '#EF4444', p1bg: 'rgba(245,158,11,0.2)', p2bg: 'rgba(239,68,68,0.2)' },
-};
+import { GAME_COLORS } from '../lib/game-registry.js';
+import { getAvatar } from '../lib/avatars.js';
+import { createSidelineBanner } from '../lib/sponsors.js';
 
 export class GameScreen {
   constructor(manager, props) {
@@ -29,19 +22,20 @@ export class GameScreen {
     const colors = GAME_COLORS[this.props.gameType] || GAME_COLORS.hex;
     const names = this.props.names || ['\u05E9\u05D7\u05E7\u05DF 1', '\u05E9\u05D7\u05E7\u05DF 2'];
     const mySeat = this.props.seat;
+    const avatar = getAvatar();
 
-    // Player tags
+    // Player tags with avatar
     const p1Tag = el('span', { className: 'player-tag', style: {
       background: colors.p1bg, color: colors.p1,
       border: `2px solid ${colors.p1}`,
-    }}, [names[0]]);
+    }}, [mySeat === 1 ? `${avatar} ${names[0]}` : names[0]]);
 
     const timerEl = el('span', { className: 'timer' }, ['--']);
 
     const p2Tag = el('span', { className: 'player-tag', style: {
       background: colors.p2bg, color: colors.p2,
       border: `2px solid ${colors.p2}`,
-    }}, [names[1]]);
+    }}, [mySeat === 2 ? `${avatar} ${names[1]}` : names[1]]);
 
     const hud = el('div', { className: 'game-hud' }, [p1Tag, timerEl, p2Tag]);
     const turnText = el('div', { className: 'turn-indicator' });
@@ -52,6 +46,10 @@ export class GameScreen {
       children.push(el('div', { className: 'bet-badge bet-badge--small' }, [`\uD83C\uDFB2 ${this.props.bet}`]));
     }
     children.push(turnText, gameArea);
+
+    // Sideline sponsor banner
+    const banner = createSidelineBanner();
+    if (banner) children.push(banner);
 
     const div = el('div', { style: { gap: '0', padding: '8px 12px' } }, children);
 
@@ -104,7 +102,6 @@ export class GameScreen {
   }
 
   _showCountdown(count) {
-    // Remove existing overlay
     this._removeCountdown();
 
     countdownBeep();

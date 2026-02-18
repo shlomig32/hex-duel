@@ -2,16 +2,9 @@ import { el } from '../lib/dom.js';
 import { showToast } from '../lib/toast.js';
 import { winFanfare, loseTone } from '../lib/sounds.js';
 import { vibrate } from '../lib/haptics.js';
-
-const GAMES = [
-  { id: 'hex', emoji: '\u2B21', name: '\u05D4\u05E7\u05E1 \u05D3\u05D5\u05D0\u05DC' },
-  { id: 'connect4', emoji: '\uD83D\uDD34', name: '\u05D0\u05E8\u05D1\u05E2 \u05D1\u05E9\u05D5\u05E8\u05D4' },
-  { id: 'pong', emoji: '\uD83C\uDFD3', name: '\u05E4\u05D5\u05E0\u05D2' },
-  { id: 'reaction', emoji: '\u26A1', name: '\u05EA\u05D2\u05D5\u05D1\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4' },
-  { id: 'bomb', emoji: '\uD83D\uDCA3', name: '\u05E4\u05E6\u05E6\u05D4 \u05D7\u05DE\u05D4' },
-  { id: 'tapsprint', emoji: '\uD83D\uDC46', name: '\u05E7\u05DC\u05D9\u05E7 \u05DE\u05D8\u05D5\u05E8\u05E3' },
-  { id: 'scream', emoji: '\uD83D\uDDE3\uFE0F', name: '\u05E7\u05E8\u05D1 \u05E6\u05E2\u05E7\u05D5\u05EA' },
-];
+import { GAME_REGISTRY } from '../lib/game-registry.js';
+import { recordGame } from '../lib/stats.js';
+import { createSponsorCard } from '../lib/sponsors.js';
 
 function spawnConfetti() {
   const container = el('div', { className: 'confetti-container' });
@@ -64,6 +57,11 @@ export class ResultScreen {
     const iWon = winner === mySeat;
     const isDraw = winner === 0;
 
+    // Record stats
+    if (!isDraw) {
+      recordGame(iWon);
+    }
+
     let emoji, text, textClass;
     if (isDraw) {
       emoji = '\uD83E\uDD1D';
@@ -79,7 +77,7 @@ export class ResultScreen {
       textClass = 'result-text lose';
     }
 
-    // Sound + haptic on result
+    // Sound + haptic
     if (iWon) {
       winFanfare();
       vibrate('win');
@@ -114,9 +112,13 @@ export class ResultScreen {
 
     this._restartBtn = restartBtn;
 
+    // Sponsor card
+    const sponsorCard = createSponsorCard();
+
     // Game switch grid -- show all games except current
     const currentGame = this.props.gameType;
-    const otherGames = GAMES.filter(g => g.id !== currentGame);
+    const allGames = Object.values(GAME_REGISTRY);
+    const otherGames = allGames.filter(g => g.id !== currentGame);
 
     const gameCards = otherGames.map(game => {
       const card = el('button', {
@@ -145,8 +147,9 @@ export class ResultScreen {
     if (betEl) mainChildren.push(betEl);
     mainChildren.push(
       el('div', { className: 'result-buttons' }, [restartBtn, homeBtn]),
-      switchSection,
     );
+    if (sponsorCard) mainChildren.push(sponsorCard);
+    mainChildren.push(switchSection);
 
     const div = el('div', { style: { gap: '16px', justifyContent: 'center' } }, mainChildren);
 
@@ -171,7 +174,7 @@ export class ResultScreen {
     this._unsubs.push(this.manager.ws.on('game_proposed', (msg) => {
       if (this.destroyed) return;
       this._pendingProposal = msg.gameType;
-      const gameInfo = GAMES.find(g => g.id === msg.gameType);
+      const gameInfo = GAME_REGISTRY[msg.gameType];
       const name = gameInfo ? gameInfo.name : msg.gameType;
 
       this._statusEl.textContent = '';
@@ -179,7 +182,6 @@ export class ResultScreen {
         el('span', { className: 'proposal-incoming' }, [`\u05D4\u05D9\u05E8\u05D9\u05D1 \u05E8\u05D5\u05E6\u05D4 \u05DC\u05E9\u05D7\u05E7 ${name} \u2014 \u05DC\u05D7\u05E5 \u05DB\u05D3\u05D9 \u05DC\u05D4\u05E1\u05DB\u05D9\u05DD`])
       );
 
-      // Highlight the proposed game card
       for (const card of this._gameCards) {
         if (card.getAttribute('data-game') === msg.gameType) {
           card.classList.add('proposed-by-opponent');
@@ -193,7 +195,7 @@ export class ResultScreen {
       this._statusEl.textContent = '...\u05DE\u05DE\u05EA\u05D9\u05DF \u05DC\u05D9\u05E8\u05D9\u05D1';
     }));
 
-    // Countdown = game starting (works for both restart and change_game)
+    // Countdown = game starting
     this._unsubs.push(this.manager.ws.on('countdown', async (msg) => {
       if (this.destroyed) return;
       const { GameScreen } = await import('./game.js');
@@ -215,18 +217,15 @@ export class ResultScreen {
   }
 
   _proposeGame(gameType, card) {
-    // If opponent already proposed this game -- accept it
     if (this._pendingProposal === gameType) {
       this.manager.ws.send({ type: 'accept_game' });
       this._statusEl.textContent = '...\u05DE\u05EA\u05D7\u05D9\u05DC';
       return;
     }
 
-    // Otherwise propose this game
     if (this._proposeSent) return;
     this._proposeSent = true;
 
-    // Visual feedback
     for (const c of this._gameCards) {
       c.classList.remove('selected');
     }
