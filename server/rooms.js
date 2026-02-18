@@ -2,12 +2,16 @@ const hexGame = require('./games/hex');
 const connect4Game = require('./games/connect4');
 const pongGame = require('./games/pong');
 const reactionGame = require('./games/reaction');
+const bombGame = require('./games/bomb');
+const tapsprintGame = require('./games/tapsprint');
 
 const GAMES = {
   hex: hexGame,
   connect4: connect4Game,
   pong: pongGame,
   reaction: reactionGame,
+  bomb: bombGame,
+  tapsprint: tapsprintGame,
 };
 
 const COUNTDOWN_SEC = 3;

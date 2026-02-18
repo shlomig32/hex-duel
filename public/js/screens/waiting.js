@@ -7,6 +7,8 @@ const GAME_INFO = {
   connect4: { emoji: '\uD83D\uDD34', name: '\u05D0\u05E8\u05D1\u05E2 \u05D1\u05E9\u05D5\u05E8\u05D4' },
   pong: { emoji: '\uD83C\uDFD3', name: '\u05E4\u05D5\u05E0\u05D2' },
   reaction: { emoji: '\u26A1', name: '\u05EA\u05D2\u05D5\u05D1\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4' },
+  bomb: { emoji: '\uD83D\uDCA3', name: '\u05E4\u05E6\u05E6\u05D4 \u05D7\u05DE\u05D4' },
+  tapsprint: { emoji: '\uD83D\uDC46', name: '\u05E7\u05DC\u05D9\u05E7 \u05DE\u05D8\u05D5\u05E8\u05E3' },
 };
 
 export class WaitingScreen {

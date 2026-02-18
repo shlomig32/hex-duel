@@ -115,13 +115,14 @@ function renderFrame() {
   const myPaddle = flipped ? _paddles[2] : _paddles[1];
   const oppPaddle = flipped ? _paddles[1] : _paddles[2];
 
-  const bottomY = toY(100 - PADDLE_Y_OFFSET);
-  const topY = toY(PADDLE_Y_OFFSET);
+  // Paddle Y positions are fixed on screen (NOT flipped)
+  const bottomScreenY = ((100 - PADDLE_Y_OFFSET) / 100) * h;
+  const topScreenY = (PADDLE_Y_OFFSET / 100) * h;
 
   // My paddle (bottom) - cyan
-  drawPaddle(ctx, toX(myPaddle), bottomY, paddleW, paddleH, radius, '#06B6D4', 'rgba(6,182,212,0.4)');
+  drawPaddle(ctx, toX(myPaddle), bottomScreenY, paddleW, paddleH, radius, '#06B6D4', 'rgba(6,182,212,0.4)');
   // Opponent paddle (top) - purple
-  drawPaddle(ctx, toX(oppPaddle), topY, paddleW, paddleH, radius, '#8B5CF6', 'rgba(139,92,246,0.4)');
+  drawPaddle(ctx, toX(oppPaddle), topScreenY, paddleW, paddleH, radius, '#8B5CF6', 'rgba(139,92,246,0.4)');
 
   // Ball
   const bx = toX(_ball.x);

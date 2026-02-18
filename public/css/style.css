@@ -1046,3 +1046,205 @@ input::placeholder { color: var(--text-dim); }
   pointer-events: none;
   opacity: 0.3;
 }
+
+/* ── Bomb Pass game ─────────────────────────────────────────────────────── */
+.bomb-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  border-radius: 20px;
+  transition: background 0.3s;
+  cursor: pointer;
+  background: var(--bg-card);
+}
+
+.bomb-area--mine {
+  background: rgba(249, 115, 22, 0.08);
+  border: 2px solid rgba(249, 115, 22, 0.2);
+}
+
+.bomb-area--exploded {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.bomb-emoji {
+  font-size: 6rem;
+  line-height: 1;
+  transition: transform 0.1s;
+}
+
+.bomb-mine {
+  animation: bombPulse 0.4s ease-in-out infinite;
+}
+
+.bomb-exploded {
+  animation: bombExplode 0.5s ease-out;
+  font-size: 8rem;
+}
+
+@keyframes bombPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes bombExplode {
+  0% { transform: scale(1); }
+  30% { transform: scale(2); }
+  100% { transform: scale(1.5); opacity: 0.6; }
+}
+
+.bomb-instruction {
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text-muted);
+  direction: rtl;
+}
+
+.fuse-bar {
+  width: 80%;
+  height: 10px;
+  background: var(--bg-input);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.fuse-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: #10B981;
+  border-radius: 5px;
+  transition: width 0.2s linear, background 0.3s;
+}
+
+.bomb-round-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.bomb-round-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.bomb-round-dot.active {
+  background: var(--accent-gold);
+}
+
+.bomb-scores {
+  display: flex;
+  gap: 20px;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* Card-specific borders on hover for new games */
+.game-card[data-game="bomb"]:hover { border-color: #F97316; box-shadow: 0 8px 25px rgba(249, 115, 22, 0.15); }
+.game-card[data-game="tapsprint"]:hover { border-color: #EC4899; box-shadow: 0 8px 25px rgba(236, 72, 153, 0.15); }
+
+/* ── Tap Sprint game ────────────────────────────────────────────────────── */
+.sprint-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+}
+
+.sprint-timer {
+  font-size: 4rem;
+  font-weight: 900;
+  font-family: monospace;
+  color: var(--accent-gold);
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.sprint-scores {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sprint-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sprint-count {
+  font-size: 1.4rem;
+  font-weight: 900;
+  min-width: 40px;
+  text-align: center;
+  font-family: monospace;
+}
+
+.sprint-count--mine { color: #EC4899; }
+.sprint-count--opp { color: #8B5CF6; }
+
+.sprint-bar {
+  flex: 1;
+  height: 14px;
+  background: var(--bg-input);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.sprint-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 7px;
+  transition: width 0.15s ease-out;
+}
+
+.sprint-bar-fill--mine { background: linear-gradient(90deg, #EC4899, #F472B6); }
+.sprint-bar-fill--opp { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+
+.sprint-tap-btn {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.3);
+  transition: transform 0.08s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sprint-tap-btn:active {
+  transform: scale(0.92);
+}
+
+.tap-pop {
+  animation: tapPop 0.15s ease-out;
+}
+
+@keyframes tapPop {
+  0% { transform: scale(0.92); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.sprint-instruction {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  direction: rtl;
+  text-align: center;
+}
