@@ -89,6 +89,7 @@ export class HomeScreen {
       speed: { bg: 'linear-gradient(135deg, #1a2a1a, #1a3a2a)', border: '#10B981' },
       party: { bg: 'linear-gradient(135deg, #2a1a1a, #3a1a2a)', border: '#EC4899' },
       '3d': { bg: 'linear-gradient(135deg, #1a2a3e, #0a1a2e)', border: '#06B6D4' },
+      arcade: { bg: 'linear-gradient(135deg, #1a1a2e, #2e1a3e)', border: '#A855F7' },
     };
 
     const categoryCards = CATEGORIES.map((cat, idx) => {

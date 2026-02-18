@@ -183,6 +183,51 @@ export const GAME_REGISTRY = {
       'האחרון שנשאר על הרגליים — מנצח!',
     ],
   },
+  skyduel: {
+    id: 'skyduel',
+    emoji: '✈️',
+    name: 'קרב אווירי',
+    tagline: 'ירה. התחמק. שלוט בשמיים.',
+    category: 'arcade',
+    difficulty: 2,
+    duration: '40 שנ\'',
+    instructions: [
+      'המטוס שלך יורה אוטומטית — זוז ימינה-שמאלה כדי לכוון',
+      'ירה על פאוור-אפים שנופלים כדי לתפוס נשקים מיוחדים',
+      'מגן מחזיר יריות, מוקש רחפני = מלכודת, רוח הפוכה = בלגן!',
+      '3 חיים. 40 שניות. מי שנשאר — מנצח!',
+    ],
+  },
+  maze: {
+    id: 'maze',
+    emoji: '👻',
+    name: 'מבוך מסוכן',
+    tagline: 'ברח מרוחות. שלח צרות ליריב.',
+    category: 'arcade',
+    difficulty: 2,
+    duration: '45 שנ\'',
+    instructions: [
+      'שני שחקנים במבוך — רוחות רודפות את שניכם',
+      'אסוף כוכבים ופריטים מיוחדים: דינמיט, מלכודת דבק, רוח שד',
+      'המבוך מתכווץ כל 10 שניות!',
+      'מי ששורד אחרון — מנצח. שווה? הכי הרבה כוכבים!',
+    ],
+  },
+  snakeclash: {
+    id: 'snakeclash',
+    emoji: '🐍',
+    name: 'קרב נחשים',
+    tagline: 'גדל. תקוף. שרוד.',
+    category: 'arcade',
+    difficulty: 2,
+    duration: '40 שנ\'',
+    instructions: [
+      'שני נחשים על אותו לוח — אסוף אוכל כדי לגדול',
+      'התנגשות = מתכווץ ב-3 (לא מת מיד!)',
+      'פאוור-אפים: קיר זמני, החלפת מקום, רוח רפאים, מוקשים',
+      '40 שניות — הכי הרבה נקודות מנצח!',
+    ],
+  },
 };
 
 export const CATEGORIES = [
@@ -206,6 +251,11 @@ export const CATEGORIES = [
     title: '🏎️ תלת מימד',
     games: ['sprint', 'drift', 'derby'],
   },
+  {
+    id: 'arcade',
+    title: '👾 ארקייד',
+    games: ['skyduel', 'maze', 'snakeclash'],
+  },
 ];
 
 export const GAME_COLORS = {
@@ -221,4 +271,7 @@ export const GAME_COLORS = {
   sprint: { p1: '#06B6D4', p2: '#EC4899', p1bg: 'rgba(6,182,212,0.2)', p2bg: 'rgba(236,72,153,0.2)' },
   drift: { p1: '#10B981', p2: '#F59E0B', p1bg: 'rgba(16,185,129,0.2)', p2bg: 'rgba(245,158,11,0.2)' },
   derby: { p1: '#EF4444', p2: '#8B5CF6', p1bg: 'rgba(239,68,68,0.2)', p2bg: 'rgba(139,92,246,0.2)' },
+  skyduel: { p1: '#06B6D4', p2: '#EC4899', p1bg: 'rgba(6,182,212,0.2)', p2bg: 'rgba(236,72,153,0.2)' },
+  maze: { p1: '#8B5CF6', p2: '#F59E0B', p1bg: 'rgba(139,92,246,0.2)', p2bg: 'rgba(245,158,11,0.2)' },
+  snakeclash: { p1: '#10B981', p2: '#EC4899', p1bg: 'rgba(16,185,129,0.2)', p2bg: 'rgba(236,72,153,0.2)' },
 };

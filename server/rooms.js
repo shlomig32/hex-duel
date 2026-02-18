@@ -10,6 +10,9 @@ const emojiquizGame = require('./games/emojiquiz');
 const sprintGame = require('./games/sprint');
 const driftGame = require('./games/drift');
 const derbyGame = require('./games/derby');
+const skyduelGame = require('./games/skyduel');
+const mazeGame = require('./games/maze');
+const snakeclashGame = require('./games/snakeclash');
 
 const GAMES = {
   hex: hexGame,
@@ -24,6 +27,9 @@ const GAMES = {
   sprint: sprintGame,
   drift: driftGame,
   derby: derbyGame,
+  skyduel: skyduelGame,
+  maze: mazeGame,
+  snakeclash: snakeclashGame,
 };
 
 const COUNTDOWN_SEC = 3;
