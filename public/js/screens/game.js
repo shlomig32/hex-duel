@@ -5,6 +5,7 @@ import { vibrate } from '../lib/haptics.js';
 import { ResultScreen } from './result.js';
 import { GAME_COLORS } from '../lib/game-registry.js';
 import { getAvatar } from '../lib/avatars.js';
+import { getPhotoAvatar, createAvatarEl } from '../lib/photo-avatar.js';
 import { createSidelineBanner } from '../lib/sponsors.js';
 
 export class GameScreen {
@@ -22,20 +23,33 @@ export class GameScreen {
     const colors = GAME_COLORS[this.props.gameType] || GAME_COLORS.hex;
     const names = this.props.names || ['\u05E9\u05D7\u05E7\u05DF 1', '\u05E9\u05D7\u05E7\u05DF 2'];
     const mySeat = this.props.seat;
-    const avatar = getAvatar();
+    const emoji = getAvatar();
+    const photo = getPhotoAvatar();
 
-    // Player tags with avatar
+    // Player tags with photo/emoji avatar
     const p1Tag = el('span', { className: 'player-tag', style: {
       background: colors.p1bg, color: colors.p1,
       border: `2px solid ${colors.p1}`,
-    }}, [mySeat === 1 ? `${avatar} ${names[0]}` : names[0]]);
+    }});
+    if (mySeat === 1) {
+      p1Tag.appendChild(createAvatarEl(emoji, photo, 20));
+      p1Tag.appendChild(document.createTextNode(` ${names[0]}`));
+    } else {
+      p1Tag.textContent = names[0];
+    }
 
     const timerEl = el('span', { className: 'timer' }, ['--']);
 
     const p2Tag = el('span', { className: 'player-tag', style: {
       background: colors.p2bg, color: colors.p2,
       border: `2px solid ${colors.p2}`,
-    }}, [mySeat === 2 ? `${avatar} ${names[1]}` : names[1]]);
+    }});
+    if (mySeat === 2) {
+      p2Tag.appendChild(createAvatarEl(emoji, photo, 20));
+      p2Tag.appendChild(document.createTextNode(` ${names[1]}`));
+    } else {
+      p2Tag.textContent = names[1];
+    }
 
     const hud = el('div', { className: 'game-hud' }, [p1Tag, timerEl, p2Tag]);
     const turnText = el('div', { className: 'turn-indicator' });

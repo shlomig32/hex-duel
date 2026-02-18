@@ -3,6 +3,7 @@ import { showToast } from '../lib/toast.js';
 import { promptModal } from '../lib/modal.js';
 import { GAME_REGISTRY, CATEGORIES } from '../lib/game-registry.js';
 import { getAvatar, setAvatar, AVATARS } from '../lib/avatars.js';
+import { getPhotoAvatar, capturePhoto, setPhotoAvatar, clearPhotoAvatar, createAvatarEl } from '../lib/photo-avatar.js';
 import { getStats } from '../lib/stats.js';
 
 export class HomeScreen {
@@ -13,14 +14,17 @@ export class HomeScreen {
 
   render() {
     const savedName = this.manager.getPlayerName() || '';
-    const avatar = getAvatar();
+    const emoji = getAvatar();
+    const photo = getPhotoAvatar();
     const stats = getStats();
 
     // -- Header --
-    const avatarEl = el('span', {
-      className: 'header-avatar',
+    const avatarEl = el('div', {
+      className: 'header-avatar-wrap',
       onClick: () => this._pickAvatar(),
-    }, [avatar]);
+    });
+    const avatarInner = createAvatarEl(emoji, photo, 36);
+    avatarEl.appendChild(avatarInner);
     this._avatarEl = avatarEl;
 
     const nameDisplay = el('span', {
@@ -79,43 +83,42 @@ export class HomeScreen {
       codeInput,
     ]);
 
-    // -- Categories --
-    const sections = CATEGORIES.map(cat => {
-      const gameIds = cat.games;
-      const gameCards = gameIds.map((gameId, cardIdx) => {
-        const game = GAME_REGISTRY[gameId];
-        if (!game) return null;
+    // -- Category Cards --
+    const CATEGORY_STYLES = {
+      strategy: { bg: 'linear-gradient(135deg, #1a1a3e, #2a1a4e)', border: '#8B5CF6' },
+      speed: { bg: 'linear-gradient(135deg, #1a2a1a, #1a3a2a)', border: '#10B981' },
+      party: { bg: 'linear-gradient(135deg, #2a1a1a, #3a1a2a)', border: '#EC4899' },
+      '3d': { bg: 'linear-gradient(135deg, #1a2a3e, #0a1a2e)', border: '#06B6D4' },
+    };
 
-        const card = el('div', {
-          className: 'game-card',
-          'data-game': game.id,
-          style: { animationDelay: `${cardIdx * 0.08}s` },
-          onClick: () => this._openSetup(game),
-        }, [
-          el('div', { className: 'game-card__emoji' }, [game.emoji]),
-          el('div', { className: 'game-card__info' }, [
-            el('div', { className: 'game-card__name' }, [game.name]),
-            el('div', { className: 'game-card__tagline' }, [game.tagline]),
-          ]),
-          el('div', { className: 'game-card__meta' }, [
-            el('span', { className: 'game-card__difficulty' }, ['\u2B50'.repeat(game.difficulty)]),
-            el('span', { className: 'game-card__duration' }, [`\u23F1 ${game.duration}`]),
-          ]),
-        ]);
-        return card;
-      }).filter(Boolean);
+    const categoryCards = CATEGORIES.map((cat, idx) => {
+      const style = CATEGORY_STYLES[cat.id] || CATEGORY_STYLES.strategy;
+      const gameCount = cat.games.length;
+      const gameEmojis = cat.games.map(id => GAME_REGISTRY[id]?.emoji || '').join(' ');
 
-      return el('div', { className: 'category-section' }, [
-        el('div', { className: 'category-title' }, [cat.title]),
-        el('div', { className: 'game-grid' }, gameCards),
+      return el('div', {
+        className: 'home-category-card stagger-in',
+        style: {
+          background: style.bg,
+          borderColor: style.border,
+          animationDelay: `${idx * 0.1}s`,
+        },
+        onClick: () => this._openCategory(cat.id),
+      }, [
+        el('div', { className: 'home-category-card__title' }, [cat.title]),
+        el('div', { className: 'home-category-card__games' }, [gameEmojis]),
+        el('div', { className: 'home-category-card__count' }, [`${gameCount} \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD`]),
       ]);
     });
+
+    const categoriesGrid = el('div', { className: 'home-categories-grid' }, categoryCards);
 
     const div = el('div', { className: 'home-screen' }, [
       header,
       statsBar,
       joinBar,
-      ...sections,
+      el('div', { className: 'home-section-label' }, ['\u05D1\u05D7\u05E8 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']),
+      categoriesGrid,
     ]);
 
     this.el = div;
@@ -133,48 +136,84 @@ export class HomeScreen {
   }
 
   _pickAvatar() {
-    // Create avatar picker overlay
     const overlay = el('div', { className: 'avatar-overlay' });
-    const grid = el('div', { className: 'avatar-grid' });
 
+    // Photo option
+    const photoBtn = el('button', {
+      className: 'btn btn--photo-capture',
+      onClick: async () => {
+        const base64 = await capturePhoto();
+        if (base64) {
+          setPhotoAvatar(base64);
+          this._refreshAvatar();
+          closeOverlay();
+        }
+      },
+    }, ['\uD83D\uDCF7 \u05E6\u05DC\u05DD \u05EA\u05DE\u05D5\u05E0\u05D4']);
+
+    const clearPhotoBtn = getPhotoAvatar() ? el('button', {
+      className: 'btn btn--ghost btn--small',
+      onClick: () => {
+        clearPhotoAvatar();
+        this._refreshAvatar();
+        closeOverlay();
+      },
+    }, ['\u05DE\u05D7\u05E7 \u05EA\u05DE\u05D5\u05E0\u05D4']) : null;
+
+    // Emoji grid
+    const grid = el('div', { className: 'avatar-grid' });
     for (const emoji of AVATARS) {
       const btn = el('button', {
         className: `avatar-btn${emoji === getAvatar() ? ' selected' : ''}`,
         onClick: () => {
           setAvatar(emoji);
-          this._avatarEl.textContent = emoji;
-          overlay.classList.add('htp-exit');
-          setTimeout(() => {
-            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-          }, 200);
+          clearPhotoAvatar();
+          this._refreshAvatar();
+          closeOverlay();
         },
       }, [emoji]);
       grid.appendChild(btn);
     }
 
-    overlay.appendChild(el('div', { className: 'avatar-card' }, [
+    const card = el('div', { className: 'avatar-card' }, [
       el('div', { className: 'avatar-title' }, ['\u05D1\u05D7\u05E8 \u05D0\u05D5\u05D5\u05D0\u05D8\u05D0\u05E8']),
+      photoBtn,
+      clearPhotoBtn,
+      el('div', { className: 'avatar-divider' }, ['\u05D0\u05D5 \u05D1\u05D7\u05E8 \u05D0\u05D9\u05DE\u05D5\u05D2\u05D9']),
       grid,
-    ]));
+    ].filter(Boolean));
 
+    overlay.appendChild(card);
     document.body.appendChild(overlay);
+
+    function closeOverlay() {
+      overlay.classList.add('htp-exit');
+      setTimeout(() => {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      }, 200);
+    }
+
     overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        overlay.classList.add('htp-exit');
-        setTimeout(() => {
-          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        }, 200);
-      }
+      if (e.target === overlay) closeOverlay();
     });
+  }
+
+  _refreshAvatar() {
+    const emoji = getAvatar();
+    const photo = getPhotoAvatar();
+    while (this._avatarEl.firstChild) {
+      this._avatarEl.removeChild(this._avatarEl.firstChild);
+    }
+    this._avatarEl.appendChild(createAvatarEl(emoji, photo, 36));
   }
 
   _getName() {
     return this.manager.getPlayerName() || '\u05E9\u05D7\u05E7\u05DF';
   }
 
-  async _openSetup(game) {
-    const { GameSetupScreen } = await import('./game-setup.js');
-    this.manager.show(GameSetupScreen, { game });
+  async _openCategory(categoryId) {
+    const { CategoryScreen } = await import('./category.js');
+    this.manager.show(CategoryScreen, { categoryId });
   }
 
   async _joinGame() {

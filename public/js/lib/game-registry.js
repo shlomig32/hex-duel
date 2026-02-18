@@ -135,6 +135,54 @@ export const GAME_REGISTRY = {
       '5 סיבובים — הכי הרבה ניחושים נכונים מנצח',
     ],
   },
+  sprint: {
+    id: 'sprint',
+    emoji: '🏎️',
+    name: 'מירוץ ספרינט',
+    tagline: 'התחמק ממכשולים. סיים ראשון.',
+    category: '3d',
+    difficulty: 1,
+    duration: '30 שנ\'',
+    is3d: true,
+    instructions: [
+      'דהר קדימה על מסלול ישר עם 3 נתיבים',
+      'החלף נתיב כדי להתחמק ממכשולים',
+      'השתמש בבוסט (3 פעמים) לתאוצה',
+      'פגיעה במכשול = עצירה לרגע. הראשון שמסיים מנצח!',
+    ],
+  },
+  drift: {
+    id: 'drift',
+    emoji: '🏁',
+    name: 'זירת דריפט',
+    tagline: 'אסוף מטבעות. דחוף יריבים.',
+    category: '3d',
+    difficulty: 2,
+    duration: '30 שנ\'',
+    is3d: true,
+    instructions: [
+      'נהג בזירה עגולה ואסוף מטבעות זהב',
+      'התנגש ביריב כדי לגנוב ממנו מטבע',
+      'מטבעות חדשים מופיעים כל כמה שניות',
+      '30 שניות — הכי הרבה מטבעות מנצח!',
+    ],
+  },
+  derby: {
+    id: 'derby',
+    emoji: '💥',
+    name: 'דרבי הרס',
+    tagline: 'התנגש. הרוס. שרוד.',
+    category: '3d',
+    difficulty: 2,
+    duration: '45 שנ\'',
+    is3d: true,
+    instructions: [
+      'נהג בזירה והתנגש ביריב',
+      'כל פגיעה = נזק. 3 פגיעות = הדחה',
+      'אסוף מגנים (כחול) וחיזוקי מהירות (כתום)',
+      'האחרון שנשאר על הרגליים — מנצח!',
+    ],
+  },
 };
 
 export const CATEGORIES = [
@@ -153,6 +201,11 @@ export const CATEGORIES = [
     title: '🎉 מסיבה',
     games: ['bomb', 'pong', 'emojiquiz'],
   },
+  {
+    id: '3d',
+    title: '🏎️ תלת מימד',
+    games: ['sprint', 'drift', 'derby'],
+  },
 ];
 
 export const GAME_COLORS = {
@@ -165,4 +218,7 @@ export const GAME_COLORS = {
   scream: { p1: '#F59E0B', p2: '#EF4444', p1bg: 'rgba(245,158,11,0.2)', p2bg: 'rgba(239,68,68,0.2)' },
   memory: { p1: '#8B5CF6', p2: '#EC4899', p1bg: 'rgba(139,92,246,0.2)', p2bg: 'rgba(236,72,153,0.2)' },
   emojiquiz: { p1: '#F59E0B', p2: '#06B6D4', p1bg: 'rgba(245,158,11,0.2)', p2bg: 'rgba(6,182,212,0.2)' },
+  sprint: { p1: '#06B6D4', p2: '#EC4899', p1bg: 'rgba(6,182,212,0.2)', p2bg: 'rgba(236,72,153,0.2)' },
+  drift: { p1: '#10B981', p2: '#F59E0B', p1bg: 'rgba(16,185,129,0.2)', p2bg: 'rgba(245,158,11,0.2)' },
+  derby: { p1: '#EF4444', p2: '#8B5CF6', p1bg: 'rgba(239,68,68,0.2)', p2bg: 'rgba(139,92,246,0.2)' },
 };

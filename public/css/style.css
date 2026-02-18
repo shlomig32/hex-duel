@@ -1963,3 +1963,320 @@ input::placeholder { color: var(--text-dim); }
 .game-pick-grid {
   flex-wrap: wrap;
 }
+
+/* ── Home Category Cards ──────────────────────────────────────────────── */
+.home-section-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 0 4px;
+  margin-top: 8px;
+}
+
+.home-categories-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.home-category-card {
+  border-radius: 16px;
+  padding: 16px;
+  border: 2px solid;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 100px;
+}
+
+.home-category-card:active {
+  transform: scale(0.96);
+}
+
+.home-category-card__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.home-category-card__games {
+  font-size: 1.4rem;
+  letter-spacing: 4px;
+}
+
+.home-category-card__count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ── Category Screen ──────────────────────────────────────────────────── */
+.category-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-back-btn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+.category-screen-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.category-game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-game-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.category-game-card:active {
+  transform: scale(0.97);
+}
+
+.category-game-card__emoji {
+  font-size: 2rem;
+  min-width: 48px;
+  text-align: center;
+}
+
+.category-game-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.category-game-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.category-game-card__tagline {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.category-game-card__meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.category-game-card__arrow {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.badge-3d {
+  background: linear-gradient(135deg, #06B6D4, #8B5CF6);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* ── Photo Avatar ─────────────────────────────────────────────────────── */
+.header-avatar-wrap {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-avatar {
+  border: 2px solid var(--accent-gold);
+}
+
+.btn--photo-capture {
+  width: 100%;
+  background: linear-gradient(135deg, #06B6D4, #3B82F6);
+  margin-bottom: 8px;
+}
+
+.avatar-divider {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding: 4px 0;
+  position: relative;
+}
+
+.avatar-divider::before,
+.avatar-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background: var(--border);
+}
+
+.avatar-divider::before { right: 0; }
+.avatar-divider::after { left: 0; }
+
+.btn--small {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+}
+
+/* ── Photo Capture Overlay ────────────────────────────────────────────── */
+.photo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.photo-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  width: min(320px, 90vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.photo-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.photo-video {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-gold);
+}
+
+.photo-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.photo-snap-btn {
+  background: linear-gradient(135deg, #10B981, #06B6D4);
+}
+
+.photo-cancel-btn {
+  font-size: 0.85rem;
+}
+
+/* ── 3D Game Container ────────────────────────────────────────────────── */
+.three-container {
+  width: 100%;
+  height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: #0a0a1a;
+}
+
+.three-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.race-controls {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  justify-content: center;
+}
+
+.race-controls .btn {
+  flex: 1;
+  max-width: 100px;
+  font-size: 0.85rem;
+  padding: 10px 4px;
+}
+
+.race-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.race-hud__coins {
+  font-weight: 700;
+}
+
+.race-hud__hp {
+  font-size: 1rem;
+}
+
+.progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-input);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.15s;
+}
+
+.progress-bar-fill--me {
+  background: linear-gradient(90deg, #06B6D4, #3B82F6);
+}
+
+.progress-bar-fill--opp {
+  background: linear-gradient(90deg, #EC4899, #8B5CF6);
+}
+
+/* ── Player tag avatar inline ─────────────────────────────────────────── */
+.player-tag .photo-avatar {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-inline-end: 2px;
+}
