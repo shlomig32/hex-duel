@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hex Duel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* ── Screens ─────────────────────────────── */
+
+  .screen { display: none; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 420px; padding: 20px; }
+  .screen.active { display: flex; }
+
+  /* ── Lobby ───────────────────────────────── */
+
+  h1 { font-size: 2rem; font-weight: 800; }
+  .subtitle { color: #94a3b8; font-size: 0.9rem; }
+
+  .hex-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #ef4444, #3b82f6);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    margin-bottom: 8px;
+  }
+
+  input {
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #e2e8f0;
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: #6366f1; }
+  input::placeholder { color: #64748b; }
+
+  .btn {
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:hover { background: #4f46e5; }
+  .btn--ghost {
+    background: transparent;
+    border: 2px solid #334155;
+    color: #94a3b8;
+  }
+  .btn--ghost:hover { border-color: #6366f1; color: #e2e8f0; background: transparent; }
+
+  .divider { color: #475569; font-size: 0.85rem; padding: 4px 0; }
+
+  .code-display {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    color: #fbbf24;
+    font-family: monospace;
+  }
+
+  .waiting-text { color: #94a3b8; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ── Game ─────────────────────────────────── */
+
+  .game-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 420px;
+    padding: 8px 16px;
+  }
+
+  .player-tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    transition: box-shadow 0.3s;
+  }
+  .player-tag.p1 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 2px solid #ef4444; }
+  .player-tag.p2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 2px solid #3b82f6; }
+  .player-tag.active-turn { box-shadow: 0 0 16px rgba(251, 191, 36, 0.5); border-color: #fbbf24; }
+
+  .timer {
+    font-size: 1.4rem;
+    font-weight: 900;
+    font-family: monospace;
+    color: #fbbf24;
+    min-width: 40px;
+    text-align: center;
+  }
+  .timer.urgent { color: #ef4444; animation: pulse 0.5s ease-in-out infinite; }
+
+  .turn-indicator {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 4px;
+    color: #94a3b8;
+  }
+  .turn-indicator.my-turn { color: #fbbf24; }
+
+  #board-container {
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+  }
+
+  #board-svg { width: 100%; height: 100%; }
+
+  .hex-cell {
+    fill: #1e293b;
+    stroke: #334155;
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill 0.15s;
+  }
+  .hex-cell:hover { fill: #334155; }
+  .hex-cell.p1 { fill: #ef4444; stroke: #f87171; cursor: default; }
+  .hex-cell.p2 { fill: #3b82f6; stroke: #60a5fa; cursor: default; }
+  .hex-cell.p1.win-path { fill: #fbbf24; stroke: #fde68a; }
+  .hex-cell.p2.win-path { fill: #fbbf24; stroke: #fde68a; }
+
+  /* Border indicators for sides */
+  .border-line { stroke-width: 3; fill: none; }
+  .border-p1 { stroke: rgba(239, 68, 68, 0.4); }
+  .border-p2 { stroke: rgba(59, 130, 246, 0.4); }
+
+  /* ── Game Over ───────────────────────────── */
+
+  .result-emoji { font-size: 4rem; }
+  .result-text { font-size: 1.5rem; font-weight: 800; }
+  .result-text.win { color: #fbbf24; }
+  .result-text.lose { color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- ── Lobby Screen ──────────────────────── -->
+<div id="lobby" class="screen active">
+  <div class="hex-icon"></div>
+  <h1>Hex Duel</h1>
+  <p class="subtitle">Connect your sides. Block your opponent.</p>
+
+  <input id="name-input" type="text" placeholder="Your name..." maxlength="15" dir="rtl">
+  <button class="btn" id="create-btn">Create Game</button>
+  <div class="divider">or</div>
+  <input id="code-input" type="text" placeholder="Enter room code" maxlength="4" dir="ltr"
+         style="text-transform: uppercase; letter-spacing: 0.2em; font-family: monospace; font-weight: 700;">
+  <button class="btn btn--ghost" id="join-btn">Join Game</button>
+</div>
+
+<!-- ── Waiting Screen ────────────────────── -->
+<div id="waiting" class="screen">
+  <div class="hex-icon"></div>
+  <h1>Waiting...</h1>
+  <p class="subtitle">Share this code with your opponent:</p>
+  <div class="code-display" id="room-code">----</div>
+  <button class="btn btn--ghost" id="copy-btn">Copy Code</button>
+  <p class="waiting-text">Waiting for opponent...</p>
+</div>
+
+<!-- ── Game Screen ───────────────────────── -->
+<div id="game" class="screen">
+  <div class="game-hud">
+    <span class="player-tag p1" id="p1-tag">Red</span>
+    <span class="timer" id="timer">15</span>
+    <span class="player-tag p2" id="p2-tag">Blue</span>
+  </div>
+  <div class="turn-indicator" id="turn-text">Your turn</div>
+  <div id="board-container">
+    <svg id="board-svg" viewBox="0 0 500 470"></svg>
+  </div>
+</div>
+
+<!-- ── Game Over Screen ──────────────────── -->
+<div id="gameover" class="screen">
+  <div class="result-emoji" id="result-emoji"></div>
+  <div class="result-text" id="result-text"></div>
+  <p class="subtitle" id="result-sub"></p>
+  <button class="btn" id="restart-btn">Play Again</button>
+  <button class="btn btn--ghost" id="home-btn">Home</button>
+</div>
+
+<!-- ── Disconnected Screen ───────────────── -->
+<div id="disconnected" class="screen">
+  <div class="result-emoji">&#x1F44B;</div>
+  <div class="result-text lose">Opponent Left</div>
+  <button class="btn" id="home-btn2">Home</button>
+</div>
+
+<script>
+// ── State ────────────────────────────────────────────────────────────────────
+
+const SIZE = 11;
+let ws = null;
+let mySeat = 0;    // 1 or 2
+let myTurn = false;
+let board = [];
+let winner = null;
+let timerValue = 15;
+let timerInterval = null;
+
+// ── DOM ──────────────────────────────────────────────────────────────────────
+
+const $ = (id) => document.getElementById(id);
+const screens = document.querySelectorAll('.screen');
+
+function showScreen(id) {
+  screens.forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+// ── WebSocket ────────────────────────────────────────────────────────────────
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${proto}//${location.host}`);
+
+  ws.onopen = () => console.log('Connected');
+  ws.onclose = () => console.log('Disconnected');
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    handle(msg);
+  };
+}
+
+function send(data) {
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(data));
+}
+
+function handle(msg) {
+  switch (msg.type) {
+    case 'created':
+      mySeat = msg.seat;
+      $('room-code').textContent = msg.code;
+      showScreen('waiting');
+      break;
+
+    case 'joined':
+      mySeat = msg.seat;
+      break;
+
+    case 'start':
+      board = msg.board;
+      winner = null;
+      $('p1-tag').textContent = '\uD83D\uDD34 ' + msg.names[0];
+      $('p2-tag').textContent = '\uD83D\uDD35 ' + msg.names[1];
+      updateTurn(msg.turn);
+      startLocalTimer(msg.timeLeft);
+      renderBoard();
+      showScreen('game');
+      break;
+
+    case 'state':
+      board = msg.board;
+      winner = msg.winner;
+      updateTurn(msg.turn);
+      startLocalTimer(msg.timeLeft);
+      renderBoard();
+      break;
+
+    case 'gameover':
+      winner = msg.winner;
+      clearInterval(timerInterval);
+      renderBoard();
+      setTimeout(() => {
+        const iWon = msg.winner === mySeat;
+        $('result-emoji').textContent = iWon ? '\uD83D\uDC51' : '\uD83D\uDE24';
+        $('result-text').textContent = iWon ? 'You Won!' : 'You Lost';
+        $('result-text').className = 'result-text ' + (iWon ? 'win' : 'lose');
+        $('result-sub').textContent = iWon
+          ? (mySeat === 1 ? 'Connected top to bottom!' : 'Connected left to right!')
+          : 'Better luck next time!';
+        showScreen('gameover');
+      }, 1500);
+      break;
+
+    case 'restart':
+      board = msg.board;
+      winner = null;
+      updateTurn(msg.turn);
+      startLocalTimer(msg.timeLeft);
+      renderBoard();
+      showScreen('game');
+      break;
+
+    case 'opponent_left':
+      clearInterval(timerInterval);
+      showScreen('disconnected');
+      break;
+
+    case 'error':
+      alert(msg.msg);
+      break;
+  }
+}
+
+function updateTurn(turn) {
+  myTurn = turn === mySeat;
+  $('turn-text').textContent = myTurn ? '\u2B06 Your turn!' : '\u23F3 Opponent thinking...';
+  $('turn-text').className = 'turn-indicator' + (myTurn ? ' my-turn' : '');
+  $('p1-tag').classList.toggle('active-turn', turn === 1);
+  $('p2-tag').classList.toggle('active-turn', turn === 2);
+}
+
+function startLocalTimer(serverTime) {
+  clearInterval(timerInterval);
+  timerValue = serverTime;
+  $('timer').textContent = timerValue;
+  $('timer').classList.toggle('urgent', timerValue <= 5);
+
+  timerInterval = setInterval(() => {
+    timerValue--;
+    if (timerValue < 0) timerValue = 15;
+    $('timer').textContent = timerValue;
+    $('timer').classList.toggle('urgent', timerValue <= 5);
+  }, 1000);
+}
+
+// ── Hex Board Rendering (SVG) ────────────────────────────────────────────────
+
+const HEX_R = 18;       // hex radius
+const HEX_W = HEX_R * Math.sqrt(3);
+const HEX_H = HEX_R * 2;
+const OFFSET_X = 40;
+const OFFSET_Y = 30;
+
+function hexCenter(row, col) {
+  const x = OFFSET_X + col * HEX_W + row * (HEX_W / 2);
+  const y = OFFSET_Y + row * (HEX_H * 0.75);
+  return { x, y };
+}
+
+function hexPoints(cx, cy) {
+  const pts = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 180 * (60 * i - 30);
+    pts.push(`${cx + HEX_R * Math.cos(angle)},${cy + HEX_R * Math.sin(angle)}`);
+  }
+  return pts.join(' ');
+}
+
+function renderBoard() {
+  const svg = $('board-svg');
+
+  // Clear all children safely (no innerHTML)
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  // Calculate viewBox to fit the board
+  const lastCenter = hexCenter(SIZE - 1, SIZE - 1);
+  const vw = lastCenter.x + HEX_R + 20;
+  const vh = lastCenter.y + HEX_R + 20;
+  svg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
+
+  // Draw border indicators
+  // Top edge (P1 red)
+  for (let c = 0; c < SIZE; c++) {
+    const { x, y } = hexCenter(0, c);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x - HEX_W / 2);
+    line.setAttribute('y1', y - HEX_R);
+    line.setAttribute('x2', x + HEX_W / 2);
+    line.setAttribute('y2', y - HEX_R);
+    line.setAttribute('class', 'border-line border-p1');
+    svg.appendChild(line);
+  }
+  // Bottom edge (P1 red)
+  for (let c = 0; c < SIZE; c++) {
+    const { x, y } = hexCenter(SIZE - 1, c);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x - HEX_W / 2);
+    line.setAttribute('y1', y + HEX_R);
+    line.setAttribute('x2', x + HEX_W / 2);
+    line.setAttribute('y2', y + HEX_R);
+    line.setAttribute('class', 'border-line border-p1');
+    svg.appendChild(line);
+  }
+  // Left edge (P2 blue)
+  for (let r = 0; r < SIZE; r++) {
+    const { x, y } = hexCenter(r, 0);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x - HEX_R);
+    line.setAttribute('y1', y - HEX_H * 0.25);
+    line.setAttribute('x2', x - HEX_R);
+    line.setAttribute('y2', y + HEX_H * 0.25);
+    line.setAttribute('class', 'border-line border-p2');
+    svg.appendChild(line);
+  }
+  // Right edge (P2 blue)
+  for (let r = 0; r < SIZE; r++) {
+    const { x, y } = hexCenter(r, SIZE - 1);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x + HEX_R);
+    line.setAttribute('y1', y - HEX_H * 0.25);
+    line.setAttribute('x2', x + HEX_R);
+    line.setAttribute('y2', y + HEX_H * 0.25);
+    line.setAttribute('class', 'border-line border-p2');
+    svg.appendChild(line);
+  }
+
+  // Draw hex cells
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const { x, y } = hexCenter(r, c);
+      const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      polygon.setAttribute('points', hexPoints(x, y));
+
+      let cls = 'hex-cell';
+      if (board[r] && board[r][c] === 1) cls += ' p1';
+      else if (board[r] && board[r][c] === 2) cls += ' p2';
+      polygon.setAttribute('class', cls);
+
+      // Click handler for empty cells
+      if ((!board[r] || board[r][c] === 0) && !winner) {
+        const row = r;
+        const col = c;
+        polygon.addEventListener('click', () => {
+          if (!myTurn || winner) return;
+          send({ type: 'move', row: row, col: col });
+        });
+        polygon.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          if (!myTurn || winner) return;
+          send({ type: 'move', row: row, col: col });
+        });
+      }
+
+      svg.appendChild(polygon);
+    }
+  }
+}
+
+// ── Button handlers ──────────────────────────────────────────────────────────
+
+$('create-btn').addEventListener('click', () => {
+  const name = $('name-input').value.trim() || 'Player';
+  connect();
+  ws.onopen = () => send({ type: 'create', name });
+});
+
+$('join-btn').addEventListener('click', () => {
+  const name = $('name-input').value.trim() || 'Player';
+  const code = $('code-input').value.trim().toUpperCase();
+  if (!code || code.length !== 4) { alert('Enter a 4-letter code'); return; }
+  connect();
+  ws.onopen = () => send({ type: 'join', name, code });
+});
+
+$('copy-btn').addEventListener('click', () => {
+  const code = $('room-code').textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      $('copy-btn').textContent = 'Copied!';
+      setTimeout(() => { $('copy-btn').textContent = 'Copy Code'; }, 2000);
+    });
+  }
+});
+
+$('restart-btn').addEventListener('click', () => {
+  send({ type: 'restart' });
+});
+
+$('home-btn').addEventListener('click', () => {
+  if (ws) ws.close();
+  showScreen('lobby');
+});
+
+$('home-btn2').addEventListener('click', () => {
+  if (ws) ws.close();
+  showScreen('lobby');
+});
+
+// Focus name input on load
+$('name-input').focus();
+</script>
+</body>
+</html>
