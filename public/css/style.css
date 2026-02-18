@@ -1248,3 +1248,124 @@ input::placeholder { color: var(--text-dim); }
   direction: rtl;
   text-align: center;
 }
+
+/* ── Scream Battle game ─────────────────────────────────────────────────── */
+.game-card[data-game="scream"]:hover { border-color: #F59E0B; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.15); }
+
+.scream-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.scream-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  transition: box-shadow 0.15s;
+}
+
+.scream-half--opp {
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.scream-half--mine {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.scream-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.scream-emoji {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.scream-instruction {
+  font-size: 1.3rem;
+  font-weight: 800;
+  direction: rtl;
+  text-align: center;
+}
+
+/* Meter */
+.scream-meter {
+  position: relative;
+  width: calc(100% - 32px);
+  height: 36px;
+  margin: 0 16px;
+  background: var(--bg-input);
+  border-radius: 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+}
+
+.scream-meter-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: width 0.1s linear;
+}
+
+.scream-meter-fill--opp {
+  left: 0;
+  width: 50%;
+  background: linear-gradient(90deg, #EF4444, #F97316);
+  border-radius: 16px 0 0 16px;
+}
+
+.scream-meter-fill--mine {
+  right: 0;
+  width: 50%;
+  background: linear-gradient(270deg, #10B981, #06B6D4);
+  border-radius: 0 16px 16px 0;
+}
+
+.scream-meter-indicator {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 6px;
+  height: calc(100% + 8px);
+  background: #FBBF24;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  transition: left 0.1s linear;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  z-index: 1;
+}
+
+/* Volume bars */
+.scream-volume-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+}
+
+.scream-volume-bar {
+  width: 8px;
+  height: 6px;
+  background: #2A2D50;
+  border-radius: 2px;
+  transition: height 0.05s ease-out, background 0.1s;
+}
+
+/* Danger glow */
+.scream-danger {
+  animation: screamDanger 0.5s ease-in-out infinite;
+}
+
+@keyframes screamDanger {
+  0%, 100% { box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.15); }
+  50% { box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.3); }
+}

@@ -4,6 +4,7 @@ const pongGame = require('./games/pong');
 const reactionGame = require('./games/reaction');
 const bombGame = require('./games/bomb');
 const tapsprintGame = require('./games/tapsprint');
+const screamGame = require('./games/scream');
 
 const GAMES = {
   hex: hexGame,
@@ -12,6 +13,7 @@ const GAMES = {
   reaction: reactionGame,
   bomb: bombGame,
   tapsprint: tapsprintGame,
+  scream: screamGame,
 };
 
 const COUNTDOWN_SEC = 3;

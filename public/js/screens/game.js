@@ -11,6 +11,7 @@ const GAME_COLORS = {
   reaction: { p1: '#10B981', p2: '#F97316', p1bg: 'rgba(16,185,129,0.2)', p2bg: 'rgba(249,115,22,0.2)' },
   bomb: { p1: '#F97316', p2: '#FBBF24', p1bg: 'rgba(249,115,22,0.2)', p2bg: 'rgba(251,191,36,0.2)' },
   tapsprint: { p1: '#EC4899', p2: '#8B5CF6', p1bg: 'rgba(236,72,153,0.2)', p2bg: 'rgba(139,92,246,0.2)' },
+  scream: { p1: '#F59E0B', p2: '#EF4444', p1bg: 'rgba(245,158,11,0.2)', p2bg: 'rgba(239,68,68,0.2)' },
 };
 
 export class GameScreen {
